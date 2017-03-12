@@ -23,5 +23,5 @@ fi
 cd $backup_dir
 
 # download backup files
-sftp -i $identity_file -P $port -b $batch_file $hostname
+sftp -i $identity_file -P $port -b $batch_file $user@$hostname
 

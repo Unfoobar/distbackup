@@ -12,7 +12,7 @@ dir="/media/owncloud/data/unfoobar/files/"		# source dir
 prefix="backup_oc_"					# backup archive name prefix
 backup_complete="14"					# days difference to last complete backup
 backup_previous="1"					# days difference to last backup at all
-encryption=true						# enable pgp encryption for backup files
+gpg_encryption=true					# enable pgp encryption for backup files
 gpg_recipient="unfoobar@unfoobar.com"			# gpg recipient
 delete_old=true						# delete old backup files
 
@@ -49,18 +49,14 @@ then
 	zip -r $backup_dir$prefix$day.zip .
 
 	# encryption
-	if [ "$encryption" = true ]
+	if [ "$gpg_encryption" = true ]
 	then
 		encrypt
+	else
+		cp $backup_dir$prefix$day.zip $public_dir$prefix$day.zip
 	fi
 
-	# handle old zip file
-	if [ "$delete_old" = true ]
-	then
-		mv $backup_dir$prefix$day.zip $backup_dir$tmp_complete.zip
-	else
-		cp $backup_dir$prefix$day.zip $backup_dir$tmp_complete.zip
-	fi
+	mv $backup_dir$prefix$day.zip $backup_dir$tmp_complete.zip
 else
 	# incremental backup
 	echo "start incremental backup..."
@@ -72,25 +68,23 @@ else
 	zip -r $backup_dir$tmp_complete.zip .
 
 	# encryption
-	if [ "$encryption" = true ]
+	if [ "$gpg_encryption" = true ]
 	then
 		encrypt
+	else
+		cp $backup_dir$prefix$day.zip $public_dir$prefix$day.zip
 	fi
 
-	# handle old zip file
-	if [ "$delete_old" = true ] || [ "$encryption" = true ]
-	then
-		rm $backup_dir$prefix$day.zip
-	fi
+	rm $backup_dir$prefix$day.zip
 fi
 
-# handle old gpg file
+# handle old public file
 if [ "$delete_old" = true ]
 then
-	if [ "$encryption" = true ] && [ -e "$backup_dir$prefix$previous.zip.gpg" ]
+	if [ "$gpg_encryption" = true ] && [ -e "$public_dir$prefix$previous.zip.gpg" ]
 	then
 		rm $public_dir$prefix$previous.zip.gpg
-	elif [ "$encryption" = false ] && [ -e "$backup_dir$prefix$previous.zip" ]
+	elif [ "$gpg_encryption" = false ] && [ -e "$public_dir$prefix$previous.zip" ]
 	then
 		rm $public_dir$prefix$previous.zip
 	fi
